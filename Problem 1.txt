@@ -1,0 +1,57 @@
+# Consider the following code is a part of a C program. Now write a MIPS code for the following C code (15 marks):
+
+ 
+ for (int i = 0; i < 4; i++) {
+   if (i != A[B[i + 1]]) {
+     x = (5 * y) + (6 * z);  // You cannot use multiplication
+     y = (6 * x) + A[i];     // or consecutive additions.
+     z = B[A[i]] + A[B[i]] - 4;
+   }
+ }
+
+where i, x, y, and z are in register $s0, $s1, $s2, $s3, respectively. Base addresses of A and B are in register $s6 and $s7, respectively.
+
+
+
+Addi $s0, $zero, $zero i = 0
+Addi $t0, $s6, 0 #$t0 = Address of A[i]
+Addi $t1, $s7, 0 # $t1 = Address of B[i]
+Loop:
+slti $t6, $s0, 4 if(i < 4) set $t6 = 1
+beq $t6, $0, Exit 
+if($t6 == 0) Branch to Exit
+addi $t0, $s0, 1 $t0 = i+1
+sll $t1, $t0, 2 4*i+1 
+add $t2, $t1, $s7 B[i+1] $t2 is index 
+sll $t3, $t2 ,2 4*$tz
+add $t4, $t3, $s6 Address of A[B[i+1]]
+lw $t5, 0 ($t4) A[B[i+1]] = $t5 
+beq $t4, $S0, Exit2 if(i==A[B[i+1]]) Branch to Exit 2 
+sll $t2, $s2, 2 $t2 = 4*y 
+add $t2, $t2, $s2 $t2 = 5*y 
+sll $t3, $s3, 2 $t3 = 4*z 
+add $t3, $t3, $s3 $t3 = 5*z 
+add $t3, $t3, $s3 $t3 = 6*z 
+add $s1, $t2, $t3 x = (5*y) + (6*z) 
+sll $t3, $s1, 2 $t3 = 4*x 
+add $t3, $t3, $s1 $t3 = 5*x 
+add $t3, $t3, $s1 $t3 = 6*x 
+sll $t0, $s0, 2 4*i 
+add $t1, $s6, $t0 Address of A[i] 
+lw $t0, 0($t1) A[i] = $t0 
+add $s2, $t3, $t0 y = (6*x) + A[i] 
+sll $t2, $t0, 2 4*A[i] 
+add $t3, $t2, $s7 Address of B[A[i]] 
+lw $t2, 0($t3) B[A[i]] = $t2 
+sll $t1, $s0, 2 4*i 
+add $t2, $s7, $t1 Address of B[i] 
+lw $t1,0($t2) B[i] = $t1 
+sll $t4,$t1,2 4*B[i] 
+add $t2, $t4, $s6 Address of A[B[i]] 
+lw $t4,0($t2) A[B[i]] = $t4 
+add $s3, $t4, $t2 B[A[i]] + A[B[i]] 
+addi $s3, $s3, -4 z = B[A[i]] + A[B[i]] - 4 
+Exit2: 
+Addi $s0, $s0,1 i = i + 1 
+J loop Jump to Loop 
+Exit1:
